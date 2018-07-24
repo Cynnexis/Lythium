@@ -18,7 +18,7 @@
 # Sensitive or high-churn files
 .idea/**/dataSources/
 .idea/**/dataSources.ids
-.idea/**/dataSources.local.xml
+.idea/**/dataSources.is_local.xml
 .idea/**/sqlDataSources.xml
 .idea/**/dynamic.xml
 .idea/**/uiDesigner.xml
@@ -313,7 +313,11 @@ $RECYCLE.BIN/
 # End of https://www.gitignore.io/api/git,java,linux,maven,python,pycharm,windows,intellij
 
 .cache-*
-spotipy/*
 spotipy
+spotipy/*
+pythium/spotipy
+pythium/spotipy/*
+src/spotipy
+src/spotipy/*
 spotify-token.txt
 current_user_playing_track.tmp.json

@@ -2,7 +2,7 @@
 
 ![license: AGPL-3.0][badge-license]
 
-Lythium is a Java application that shows you the lyrics of the current song which is playing on Spotify.
+Lythium is a Java application that shows you the lyrics of the current song which is is_playing on Spotify.
 
 ## Author ##
 This project has been made by **Valentin Berger** (username: **[Cynnexis](https://github.com/Cynnexis)**)

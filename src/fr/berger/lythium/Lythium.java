@@ -1,8 +1,10 @@
 package fr.berger.lythium;
 
+import fr.berger.lythium.pythium.Pythium;
+import fr.berger.lythium.spotifyobjects.SpotifyBundle;
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.stage.Stage;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 public class Lythium extends Application {
 	
@@ -12,6 +14,10 @@ public class Lythium extends Application {
 	
 	@Override
 	public void start(Stage primaryStage) throws Exception {
-		throw new NotImplementedException();
+		SpotifyBundle bundle = Pythium.call("cybervalentin");
+		
+		System.out.println("You're listening to " + bundle.getItem().getName() + " by " + bundle.getItem().getArtists().toString());
+		
+		Platform.exit();
 	}
 }

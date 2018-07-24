@@ -18,7 +18,7 @@
 # Sensitive or high-churn files
 .idea/**/dataSources/
 .idea/**/dataSources.ids
-.idea/**/dataSources.local.xml
+.idea/**/dataSources.is_local.xml
 .idea/**/sqlDataSources.xml
 .idea/**/dynamic.xml
 .idea/**/uiDesigner.xml
@@ -154,3 +154,5 @@ res/misc/spotify-client-id.txt
 res/misc/spotify-client-secret.txt
 res/misc/spotify-redirect-uri.txt
 pom.xml
+.cache-*
+current_user_playing_track.tmp.json

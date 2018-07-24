@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <module org.jetbrains.idea.maven.project.MavenProjectsManager.isMavenModule="true" type="JAVA_MODULE" version="4">
-  <component name="NewModuleRootManager" LANGUAGE_LEVEL="JDK_1_7">
+  <component name="NewModuleRootManager" LANGUAGE_LEVEL="JDK_1_8">
     <output url="file://$MODULE_DIR$/target/classes" />
     <output-test url="file://$MODULE_DIR$/target/test-classes" />
     <content url="file://$MODULE_DIR$">
@@ -14,9 +14,12 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="library" name="JetBrains Annotations" level="project" />
+    <orderEntry type="library" exported="" name="JetBrains Annotations" level="project" />
     <orderEntry type="library" name="JUnit" level="project" />
-    <orderEntry type="library" name="BeyondCode" level="project" />
-    <orderEntry type="library" name="EnhancedList" level="project" />
+    <orderEntry type="library" exported="" name="BeyondCode" level="project" />
+    <orderEntry type="library" exported="" name="EnhancedList" level="project" />
+    <orderEntry type="module" module-name="JExec" exported="" />
+    <orderEntry type="library" name="Apache Commons Exec" level="project" />
+    <orderEntry type="library" name="Jackson 2.9.6" level="project" />
   </component>
 </module>
