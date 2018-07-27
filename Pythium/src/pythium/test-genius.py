@@ -88,10 +88,15 @@ else:
 		code = code[1]
 	code = code.split('&')[0].split(' ')[0]
 
+print("code = {}".format(code))
+
 
 # Create a decoder
 def decoder(payload):
-	return json.loads(payload.decode('utf-8'))
+	results = json.loads(payload.decode('utf-8'))
+	if "access_token" in results.keys():
+		print("Access token: {}".format(results["access_token"]))
+	return results
 
 
 data = {
@@ -102,7 +107,7 @@ data = {
 session = genius.get_auth_session(data=data, decoder=decoder)
 
 search_query = {
-	'q': "Ocean Seven Lions"
+	'q': "Ocean Seven Lions" # To change
 }
 search_query = urllib.parse.urlencode(search_query).replace('+', '%20')
 results = session.get("search?{}".format(search_query)).json()

@@ -1,32 +1,69 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8"/>
-        <title>Success</title>
-        <style>
-            html {
-                height: 100%;
-            }
-            body {
-                background-color: rgb(47, 198, 118);
-                min-height: 100%;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-            }
-            h1, h2 {
-                color: white;
-                font-family: monospace, serif;
+	<head>
+		<meta charset="UTF-8"/>
+		<title>Success</title>
+		<style>
+			html {
+				height: 100%;
+			}
+			body {
+				background-color: rgb(47, 198, 118);
+				min-height: 100%;
+			    display: flex;
+				justify-content: center;
+			}
+			h1, h2 {
+				color: white;
+				font-family: monospace, serif;
+				font-weight: bold;
+				text-align: center;
+			}
+			h1 {
+			    font-size: 50px;
+			}
+			input[type="button"] {
+			    background: white;
+				color: rgb(47, 198, 118);
+				padding: 20px;
+				border: none;
+				box-shadow: 0px 0px 2px white;
+				font-size: 20px;
                 font-weight: bold;
-                text-align: center;
+				transition: all .6s ease-in;
+			}
+			input[type="button"]:hover {
+				box-shadow: 0px 0px 10px white;
+			}
+			
+			#content {
+			    display: flex;
+			    flex-direction: column;
+				align-items: center;
+				justify-content: center;
+			}
+		</style>
+        
+        <script language="javascript" type="text/javascript">
+            function windowsClose() {
+                window.open('', '_parent', '');
+                window.close();
             }
-        </style>
-    </head>
-    <body>
-        <div>
-            <h1>OAuth2</h1>
-            <br/>
-            <h2>The program successfully received the code! You can now close this tab.</h2>
-        </div>
-    </body>
+        </script>
+	</head>
+	<body>
+		<div id="content">
+			<h1>OAuth2</h1>
+			<br/>
+			<h2>The program successfully received the code! You can now close this tab.</h2>
+            <br />
+            <input type="button" value="CLOSE" onclick="windowsClose();"/>
+		</div>
+
+		<script language="javascript" type="text/javascript">
+			setTimeout(function() {
+				setTimeout (window.close, 5000);
+			}, 1000);
+		</script>
+	</body>
 </html>
