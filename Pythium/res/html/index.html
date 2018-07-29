@@ -4,36 +4,45 @@
 		<meta charset="UTF-8"/>
 		<title>Success</title>
 		<style>
+			:root {
+				--primary-color: rgb(47, 198, 118);
+			}
+			
 			html {
 				height: 100%;
 			}
 			body {
-				background-color: rgb(47, 198, 118);
-				min-height: 100%;
+				background-color: var(--primary-color);
+				min-height: 90%;
 			    display: flex;
 				justify-content: center;
 			}
+			p, h1, h2, input {
+				font-family: monospace, serif;
+			}
 			h1, h2 {
 				color: white;
-				font-family: monospace, serif;
 				font-weight: bold;
 				text-align: center;
 			}
 			h1 {
 			    font-size: 50px;
+			    background: white;
+				color: var(--primary-color);
+				padding: 30px 450px;
 			}
 			input[type="button"] {
 			    background: white;
-				color: rgb(47, 198, 118);
+				color: var(--primary-color);
 				padding: 20px;
 				border: none;
-				box-shadow: 0px 0px 2px white;
-				font-size: 20px;
+				box-shadow: 0px 0px 10px white;
+				font-size: 30px;
                 font-weight: bold;
 				transition: all .6s ease-in;
 			}
 			input[type="button"]:hover {
-				box-shadow: 0px 0px 10px white;
+				box-shadow: 0px 0px 20px white;
 			}
 			
 			#content {
@@ -53,9 +62,11 @@
 	</head>
 	<body>
 		<div id="content">
-			<h1>OAuth2</h1>
+			<h1>LYTHIUM</h1>
 			<br/>
-			<h2>The program successfully received the code! You can now close this tab.</h2>
+			<br/>
+			<br/>
+			<h2>We successfully received the authentication code! You can now close this tab.</h2>
             <br />
             <input type="button" value="CLOSE" onclick="windowsClose();"/>
 		</div>

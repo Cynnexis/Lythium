@@ -12,8 +12,7 @@ class LocalServer:
 		PAUSED = 2,
 		STOPPED = 3
 	
-	def __init__(self, port: int = 8080, max_connection: int = 5, on_state_changed=None, on_server_initialized=None,
-	             on_client_connected=None, on_data_received=None):
+	def __init__(self, port: int = 8080, max_connection: int = 5, on_state_changed=None, on_server_initialized=None):
 		self.server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 		self.server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 		self.port = port
@@ -21,9 +20,6 @@ class LocalServer:
 		self.__state = LocalServer.State.INITIALIZING
 		self.on_state_changed = on_state_changed
 		self.on_server_initialized = on_server_initialized
-		self.on_client_connected = on_client_connected
-		self.on_data_received = on_data_received
-		self.th_initialize = None
 		self.template = "<html><body>The program successfully received the code! You can now close this tab.</body></html>"
 		try:
 			with open("../../res/html/index.html") as f:
@@ -31,7 +27,7 @@ class LocalServer:
 		except IOError:
 			pass
 	
-	def start(self, launch_server: bool=True, sync: bool = True):
+	def start(self):
 		self.server.bind(("localhost", self.port))
 		self.server.listen(self.max_connection)  # number of max connections
 		self.state = LocalServer.State.STARTED
@@ -41,74 +37,12 @@ class LocalServer:
 			except TypeError:
 				pass
 		
-		if launch_server:
-			if sync:
-				self.launch_server()
-			else:
-				if self.th_initialize is None:
-					self.th_initialize = Thread(target=self.launch_server, args=(self,))
-					self.th_initialize.start()
-	
-	def launch_server(self):
-		while self.state == LocalServer.State.STARTED or self.state == LocalServer.State.PAUSED:
-			# Block program if PAUSE
-			while self.state == LocalServer.State.PAUSED:
-				pass
-			
-			# Block the program until a connection is received
-			(client, address) = self.server.accept()
-			
-			if self.state == LocalServer.State.STOPPED:
-				break
-			
-			data = ""
-			# Get the raw data
-			while True:
-				client.setblocking(0)
-				ready = select.select([client], [], [], 0.)
-				if ready[0]:
-					datum = client.recv(4096)
-					data = data + datum.decode("utf-8")
-					if not datum or datum == b'' or datum == '':
-						break
-				else:
-					break
-			
-			# Send an answer to the client
-			if self.on_client_connected is not None and callable(self.on_client_connected):
-				try:
-					self.on_client_connected(client, address)
-				except TypeError:
-					pass
-			client.sendto(("HTTP/1.1 200 OK\n" +
-			               "Content-Type: text/html\n" +
-			               "\n" +
-			               self.template +
-			               "\n").encode("utf-8"), address)
-			# Close the connection with the client
-			try:
-				client.shutdown(socket.SHUT_WR)
-			except OSError:
-				pass
-			client.close()
-			
-			if data is not None and self.on_data_received is not None and callable(self.on_data_received):
-				try:
-					self.on_data_received(data)
-				except TypeError as ex:
-					print("{}".format(ex))
-		
-		self.server.close()
-		self.stop()
-		return
-		
 	def pause(self):
 		self.state = LocalServer.State.PAUSED
 	
 	def stop(self):
 		self.state = LocalServer.State.STOPPED
-		if self.th_initialize is not None:
-			self.server.close()
+		self.server.close()
 	
 	def wait_for_connection(self, timeout_s: float = 1.) -> str:
 		(client, address) = self.server.accept()

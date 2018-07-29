@@ -20,7 +20,7 @@ SPOTIFY_REDIRECT_URI = "http://localhost:6814"
 
 
 # Try to read file save
-saver = Saver(".cache-rauth-spotify.json")
+spotify_saver = Saver(".cache-rauth-spotify.json")
 
 spotify = OAuth2Service(
 	client_id=SPOTIFY_CLIENT_ID,
@@ -32,7 +32,7 @@ spotify = OAuth2Service(
 )
 
 # If there is no save
-if saver.get("code", None) is None:
+if spotify_saver.get("code", None) is None:
 	params = {
 		"scope": "user-read-currently-playing",
 		"response_type": "code",
@@ -92,17 +92,17 @@ if saver.get("code", None) is None:
 		else:
 			code = code[1]
 		code = code.split('&')[0].split(' ')[0]
-		saver["code"] = code
+		spotify_saver["code"] = code
 # If there is a save:
 else:
-	code = str(saver["code"])
+	code = str(spotify_saver["code"])
 
 print("code = {}".format(code))
 
 
 # Create a decoder
 def decoder(payload):
-	global saver
+	global spotify_saver
 	results = json.loads(payload.decode('utf-8'))
 	if "access_token" in results.keys():
 		saver["access_token"] = results["access_token"]
@@ -117,12 +117,12 @@ def decoder(payload):
 
 
 # If the access and refresh tokens are already saved, use them
-if {"access_token", "refresh_token", "token_type", "expires_in"}.issubset(saver.keys()):
-	access_token = saver["access_token"]
+if {"access_token", "refresh_token", "token_type", "expires_in"}.issubset(spotify_saver.keys()):
+	access_token = spotify_saver["access_token"]
 	print("Access token: {}".format(access_token))
-	refresh_token = saver["refresh_token"]
-	token_type = saver["token_type"]
-	expires_in = saver["expires_in"]
+	refresh_token = spotify_saver["refresh_token"]
+	token_type = spotify_saver["token_type"]
+	expires_in = spotify_saver["expires_in"]
 else:
 	access_token = refresh_token = token_type = expires_in = None
 

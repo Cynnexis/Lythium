@@ -313,11 +313,6 @@ $RECYCLE.BIN/
 # End of https://www.gitignore.io/api/git,java,linux,maven,python,pycharm,windows,intellij
 
 .cache-*
-spotipy
-spotipy/*
-pythium/spotipy
-pythium/spotipy/*
-src/spotipy
-src/spotipy/*
+lyrics.json
 spotify-token.txt
 current_user_playing_track.tmp.json
