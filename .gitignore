@@ -149,10 +149,11 @@ buildNumber.properties
 
 # End of https://www.gitignore.io/api/git,java,linux,windows,intellij
 
+.idea/*
 usefull-links.txt
-res/misc/spotify-client-id.txt
-res/misc/spotify-client-secret.txt
-res/misc/spotify-redirect-uri.txt
+res/misc/*-client-*.txt
 pom.xml
 .cache-*
 current_user_playing_track.tmp.json
+lyrics.json
+*-bundle.json

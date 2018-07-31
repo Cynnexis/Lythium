@@ -1,24 +1,31 @@
 # -*- coding: utf-8  -*-
+
+import os
+import sys
+
+sys.path.append(os.getcwd())
+
 import argparse
+import html
 import json
 import os
 import re
-import sys
 import time
 import urllib
 import webbrowser
-import html
 from threading import Thread, Event
 from typing import Union, Tuple
 
+import simplejson
 from rauth import OAuth2Service, OAuth1Service
 
-from pythium.local_server import LocalServer
-from pythium.saver import Saver
+from local_server import LocalServer
+from saver import Saver
 
 # Configuring arguments
 parser = argparse.ArgumentParser()
-parser.add_argument("-o", "--output", help="Output filename. Default is 'lyrics.json'", type=str, default="lyrics.json")
+parser.add_argument("-o", "--output", help="Output filename. If none, no output file is provided.",
+                    type=str, default=None)
 parser.add_argument("-r", "--repository", help="Repository where the files 'spotify-client-id.txt', "
                                                "'spotify-client-secret.txt', 'genius-client-id.txt' and "
                                                "'genius-client-secret.txt' are stored. Default is working directory",
@@ -27,10 +34,11 @@ parser.add_argument("-i", "--print-info", help="Print the music name, artists an
                     action="store_true")
 parser.add_argument("-j", "--print-json", help="Print the json results in the console",
                     action="store_true")
+parser.add_argument("-s", "--spotify-bundle", help="Output the spotify bundle as a JSON file to give in argument",
+                    type=str, default=None)
 parser.add_argument("-d", "--debug", help="Print debug information in the console",
                     action="store_true")
 args = parser.parse_args()
-
 
 
 def search_code_from_data(data: str) -> str:
@@ -60,8 +68,8 @@ def search_code_from_data(data: str) -> str:
 	return code
 
 
-
-def get_session_using_saver(saver: Saver, sess: Union[OAuth2Service, OAuth1Service], code: str, name: str = "") \
+def get_session_using_saver(saver: Saver, sess: Union[OAuth2Service, OAuth1Service], code: str,
+                            default_expiration_time_second: int = 3600, name: str = "") \
 		-> Tuple[Union[OAuth2Service, OAuth1Service], Union[str, None], Union[str, None], Union[str, None],
 		         Union[str, int, None]]:
 	global args
@@ -78,7 +86,6 @@ def get_session_using_saver(saver: Saver, sess: Union[OAuth2Service, OAuth1Servi
 			saver["access_token_timestamp"] = int(time.time())
 			if args.debug:
 				print("{} access token = {}".format(name, results["access_token"]))
-		# print("Access token: {}".format(results["access_token"]))
 		if "refresh_token" in results.keys():
 			saver["refresh_token"] = results["refresh_token"]
 		if "token_type" in results.keys():
@@ -90,7 +97,7 @@ def get_session_using_saver(saver: Saver, sess: Union[OAuth2Service, OAuth1Servi
 	# If the access and refresh tokens are already saved, use them
 	if {"access_token", "access_token_timestamp", "token_type"}.issubset(
 			saver.keys()) and saver.get("access_token_timestamp", None) is not None and int(time.time()) - \
-			int(saver["access_token_timestamp"]) <= int(saver.get("expires_in", 3600)):
+			int(saver["access_token_timestamp"]) <= int(saver.get("expires_in", default_expiration_time_second)):
 		access_token = saver["access_token"]
 		if args.debug:
 			print("{} access token = {}".format(name, access_token))
@@ -128,7 +135,8 @@ server.start()
 # GETTING CREDENTIAL #
 
 # Spotify API
-with open(os.path.join(args.repository, "spotify-client-id.txt"), 'r') as f: # "../../../res/misc/spotify-client-id.txt"
+with open(os.path.join(args.repository, "spotify-client-id.txt"),
+          'r') as f:  # "../../../res/misc/spotify-client-id.txt"
 	SPOTIFY_CLIENT_ID = f.read().replace('\n', '')
 
 with open(os.path.join(args.repository, "spotify-client-secret.txt"), 'r') as f:
@@ -161,6 +169,7 @@ else:
 	# Launch server
 	e = Event()
 	
+	
 	def launch_after(e: Event):
 		"""
 		Open the authorize URL to the Spotify API through a new tab in the default browser.
@@ -168,6 +177,7 @@ else:
 		"""
 		e.wait()
 		webbrowser.open_new_tab(spotify.get_authorize_url(**params))
+	
 	
 	# Launch the webbrowser command in another thread
 	Thread(target=launch_after, args=(e,)).start()
@@ -184,7 +194,6 @@ else:
 
 if args.debug:
 	print("Spotify auth code = {}".format(spotify_code))
-
 
 spotify_session, spotify_access_token, spotify_refresh_token, spotify_token_type, spotify_expires_in = get_session_using_saver(
 	saver=spotify_saver, sess=spotify, code=spotify_code, name="Spotify"
@@ -209,22 +218,21 @@ genius = OAuth2Service(
 	base_url="https://api.genius.com/",
 )
 
-# Search if there is a save:
-if genius_saver.get("code", None) is not None and genius_saver.get("code_timestamp", None) is not None and \
-		int(time.time()) - int(genius_saver["code_timestamp"]) <= 3600:
-	genius_code = str(genius_saver["code"])
-else:
-	# Connect to the Genius API to get the authentication code
+
+def get_genius_code():
 	genius_params = {
 		"response_type": "code",
 		"redirect_uri": redirect_uri
 	}
+	global genius_code
+	global genius_saver
+	global server
 	
 	e = Event()
+	
 	def launch_after(e: Event):
 		e.wait()
 		webbrowser.open_new_tab(genius.get_authorize_url(**genius_params))
-	
 	
 	Thread(target=launch_after, args=(e,)).start()
 	
@@ -239,27 +247,49 @@ else:
 	genius_saver["code"] = genius_code
 	genius_saver["code_timestamp"] = int(time.time())
 
+
+# Search if there is a save:
+if genius_saver.get("code", None) is not None and genius_saver.get("code_timestamp", None) is not None and \
+		int(time.time()) - int(genius_saver["code_timestamp"]) <= 3600:
+	genius_code = str(genius_saver["code"])
+else:
+	# Connect to the Genius API to get the authentication code
+	get_genius_code()
+
 if args.debug:
 	print("Genius code = {}".format(genius_code))
 
-genius_session, genius_access_token, genius_refresh_token, genius_token_type, genius_expires_in = get_session_using_saver(
-	saver=genius_saver, sess=genius, code=genius_code, name="Genius"
-)
+try:
+	genius_session, genius_access_token, genius_refresh_token, genius_token_type, genius_expires_in = get_session_using_saver(
+		saver=genius_saver, sess=genius, code=genius_code, default_expiration_time_second=1800, name="Genius"
+	)
+except KeyError:
+	get_genius_code()
+	if args.debug:
+		print("Genius code were wrong. New Genius code = {}".format(genius_code))
+	genius_session, genius_access_token, genius_refresh_token, genius_token_type, genius_expires_in = get_session_using_saver(
+		saver=genius_saver, sess=genius, code=genius_code, default_expiration_time_second=1800, name="Genius"
+	)
 
 # GETTING CONTENT #
 
 # Spotify API: Fetch the current music
 
-results = spotify_session.get("me/player/currently-playing").json()
+try:
+	spotify_results = spotify_session.get("me/player/currently-playing").json()
+except simplejson.errors.JSONDecodeError:
+	print("ERROR: No data available on Spotify. Please make sure that you have accepted the link between this " +
+	      "application and your Spotify account, and you are listening to a music on the same Spotify account.")
+	sys.exit(1)
 
 artists = ""
-for a in results["item"]["artists"]:
+for a in spotify_results["item"]["artists"]:
 	if artists == "":
 		artists = a["name"]
 	else:
 		artists = artists + ", " + a["name"]
 
-music_name = results["item"]["name"]
+music_name = spotify_results["item"]["name"]
 if args.print_info:
 	print("You're listening to {} by {}.".format(music_name, artists))
 
@@ -312,5 +342,11 @@ if args.print_json:
 	print(results)
 
 # Save results to a file
-with open(args.output, 'w') as f:
-	json.dump(results, f)
+if args.output is not None and args.output != "":
+	with open(args.output, 'w') as f:
+		json.dump(results, f)
+
+# Save the spotify bundle if asked
+if args.spotify_bundle is not None and args.spotify_bundle != "":
+	with open(args.spotify_bundle, 'w') as f:
+		json.dump(spotify_results, f)

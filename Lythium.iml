@@ -18,7 +18,6 @@
     <orderEntry type="library" name="JUnit" level="project" />
     <orderEntry type="library" exported="" name="BeyondCode" level="project" />
     <orderEntry type="library" exported="" name="EnhancedList" level="project" />
-    <orderEntry type="module" module-name="JExec" exported="" />
     <orderEntry type="library" name="Apache Commons Exec" level="project" />
     <orderEntry type="library" name="Jackson 2.9.6" level="project" />
   </component>

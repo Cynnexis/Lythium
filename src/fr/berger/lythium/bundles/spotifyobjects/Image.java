@@ -1,4 +1,4 @@
-package fr.berger.lythium.spotifyobjects;
+package fr.berger.lythium.bundles.spotifyobjects;
 
 import fr.berger.beyondcode.util.EnhancedObservable;
 import org.jetbrains.annotations.NotNull;

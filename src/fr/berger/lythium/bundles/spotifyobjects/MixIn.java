@@ -1,4 +1,4 @@
-package fr.berger.lythium.spotifyobjects;
+package fr.berger.lythium.bundles.spotifyobjects;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 

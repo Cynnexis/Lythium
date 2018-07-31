@@ -1,4 +1,4 @@
-package fr.berger.lythium.spotifyobjects;
+package fr.berger.lythium.bundles.spotifyobjects;
 
 import fr.berger.beyondcode.util.EnhancedObservable;
 import org.jetbrains.annotations.NotNull;
@@ -15,6 +15,7 @@ public class Playlist extends EnhancedObservable {
 	private URL href;
 	private URI uri;
 	private HashMap<String, URL> external_urls;
+	private String type;
 	
 	/* CONSTRUCTOR */
 	
@@ -23,6 +24,7 @@ public class Playlist extends EnhancedObservable {
 		setHref(copy.getHref());
 		setUri(copy.getUri());
 		setExternal_urls(copy.getExternal_urls());
+		setType(copy.getType());
 	}
 	
 	/* GETTERS & SETTERS */
@@ -51,6 +53,14 @@ public class Playlist extends EnhancedObservable {
 		this.external_urls = external_urls;
 	}
 	
+	public String getType() {
+		return type;
+	}
+	
+	public void setType(String type) {
+		this.type = type;
+	}
+	
 	/* NESTED CLASS */
 	
 	public class Builder {
@@ -76,6 +86,10 @@ public class Playlist extends EnhancedObservable {
 			instance.setExternal_urls(externalURLs);
 		}
 		
+		public void setType(String type) {
+			instance.setType(type);
+		}
+		
 		public Playlist build() {
 			return new Playlist(instance);
 		}
@@ -90,12 +104,13 @@ public class Playlist extends EnhancedObservable {
 		Playlist playlist = (Playlist) o;
 		return Objects.equals(getHref(), playlist.getHref()) &&
 				Objects.equals(getUri(), playlist.getUri()) &&
-				Objects.equals(getExternal_urls(), playlist.getExternal_urls());
+				Objects.equals(getExternal_urls(), playlist.getExternal_urls()) &&
+				Objects.equals(getType(), playlist.getType());
 	}
 	
 	@Override
 	public int hashCode() {
-		return Objects.hash(getHref(), getUri(), getExternal_urls());
+		return Objects.hash(getHref(), getUri(), getExternal_urls(), getType());
 	}
 	
 	@Override
@@ -104,6 +119,7 @@ public class Playlist extends EnhancedObservable {
 				"href=" + href +
 				", uri=" + uri +
 				", external_urls=" + external_urls +
+				", type=" + type +
 				'}';
 	}
 }
