@@ -4,31 +4,48 @@ import fr.berger.enhancedlist.Couple;
 import fr.berger.lythium.bundles.pythiumbundle.PythiumBundle;
 import fr.berger.lythium.bundles.spotifyobjects.SpotifyBundle;
 import fr.berger.lythium.pythium.Pythium;
+import fr.berger.lythium.ui.Showcase;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.event.EventHandler;
 import javafx.scene.Scene;
+import javafx.scene.control.*;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextArea;
-import javafx.scene.control.ToolBar;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+import jfxtras.styles.jmetro8.JMetro;
 
+import javax.imageio.ImageIO;
+import java.awt.*;
+import java.awt.MenuItem;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.ImageObserver;
 import java.awt.image.ImageProducer;
+import java.io.IOException;
 
 // See https://stackoverflow.com/questions/40571199/creating-tray-icon-using-javafx
 
 public class Lythium extends Application {
+	
+	private Thread th_pythium = null;
+	
+	
+	private java.awt.SystemTray tray;
+	private java.awt.TrayIcon trayIcon;
+	
 	
 	private Stage stage;
 	
 	private Button bt_refresh;
 	
 	private ToolBar tb_tools;
+	private Showcase showcase;
 	private TextArea ta_lyrics;
+	private ProgressBar pb_pythium;
 	
 	private VBox vb_main;
 	
@@ -39,26 +56,55 @@ public class Lythium extends Application {
 		Platform.setImplicitExit(false);
 		javax.swing.SwingUtilities.invokeLater(this::configureTray);
 		
-		bt_refresh = new Button("Refresh");
+		P.initialize();
+		
+		bt_refresh = new Button("Refresh", new ImageView(new Image(getClass().getResourceAsStream("/images/refresh16.png"))));
 		bt_refresh.setOnAction(event -> {
-			try {
-				Couple<PythiumBundle, SpotifyBundle> results = Pythium.call();
-				if (results != null && results.getX() != null)
-					ta_lyrics.setText(results.getX().getLyrics());
-			} catch (Exception ex) {
-				ex.printStackTrace();
+			if (th_pythium == null) {
+				th_pythium = new Thread(() -> {
+					try {
+						Platform.runLater(() -> pb_pythium.setProgress(ProgressIndicator.INDETERMINATE_PROGRESS));
+						
+						// TODO: Before running Pythium, search in the database if it has not been searched before
+						
+						Couple<PythiumBundle, SpotifyBundle> results = Pythium.call();
+						
+						Platform.runLater(() -> {
+							if (results != null && results.getX() != null) {
+								pb_pythium.setProgress(0);
+								ta_lyrics.setText(results.getX().getLyrics());
+								P.setMusic(results.getX().getMusic(), results.getX().getLyrics());
+								
+								if (showcase != null)
+									showcase.update(results);
+							}
+						});
+					} catch (Exception ex) {
+						ex.printStackTrace();
+					} finally {
+						th_pythium = null;
+					}
+				});
+				th_pythium.start();
 			}
 		});
 		
 		tb_tools = new ToolBar(bt_refresh);
 		
+		showcase = new Showcase();
+		
 		ta_lyrics = new TextArea();
 		ta_lyrics.setEditable(false);
 		
-		vb_main = new VBox(5, tb_tools, ta_lyrics);
+		pb_pythium = new ProgressBar();
+		pb_pythium.setProgress(0.0);
+		
+		vb_main = new VBox(0, tb_tools, showcase, ta_lyrics, pb_pythium);
 		
 		Scene scene = new Scene(vb_main);
+		new JMetro(JMetro.Style.LIGHT).applyTheme(scene);
 		this.stage.setScene(scene);
+		this.stage.getIcons().add(new Image(getClass().getResourceAsStream("/images/lythium128.png")));
 		this.stage.show();
 	}
 	
@@ -70,33 +116,38 @@ public class Lythium extends Application {
 			Platform.exit();
 		}
 		
-		java.awt.SystemTray tray = java.awt.SystemTray.getSystemTray();
-		java.awt.TrayIcon trayIcon = new java.awt.TrayIcon(new java.awt.Image() {
-			@Override
-			public int getWidth(ImageObserver observer) {
-				return 0;
-			}
-			
-			@Override
-			public int getHeight(ImageObserver observer) {
-				return 0;
-			}
-			
-			@Override
-			public ImageProducer getSource() {
-				return null;
-			}
-			
-			@Override
-			public java.awt.Graphics getGraphics() {
-				return null;
-			}
-			
-			@Override
-			public Object getProperty(String name, java.awt.image.ImageObserver observer) {
-				return null;
-			}
-		});
+		tray = java.awt.SystemTray.getSystemTray();
+		trayIcon = null;
+		try {
+			trayIcon = new java.awt.TrayIcon(ImageIO.read(getClass().getResourceAsStream("/images/lythium128.png")));
+		} catch (IOException e) {
+			trayIcon = new java.awt.TrayIcon(new java.awt.Image() {
+				@Override
+				public int getWidth(ImageObserver observer) {
+					return 0;
+				}
+				
+				@Override
+				public int getHeight(ImageObserver observer) {
+					return 0;
+				}
+				
+				@Override
+				public ImageProducer getSource() {
+					return null;
+				}
+				
+				@Override
+				public Graphics getGraphics() {
+					return null;
+				}
+				
+				@Override
+				public Object getProperty(String name, ImageObserver observer) {
+					return null;
+				}
+			});
+		}
 		
 		trayIcon.addActionListener(e -> Platform.runLater(this::showFrame));
 		
@@ -113,6 +164,7 @@ public class Lythium extends Application {
 		
 		java.awt.PopupMenu menu = new java.awt.PopupMenu();
 		menu.add(mi_refresh);
+		menu.addSeparator();
 		menu.add(mi_exit);
 		trayIcon.setPopupMenu(menu);
 		
