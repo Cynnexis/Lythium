@@ -2,9 +2,6 @@
 
 import os
 import sys
-
-sys.path.append(os.getcwd())
-
 import argparse
 import html
 import json
@@ -132,6 +129,11 @@ redirect_uri = "http://localhost:6814"
 server = LocalServer(port=6814)
 server.start()
 
+# Create a saver that map "music_name|artists" -> "lyrics" as an history list and a cache at the same time. Hence, if
+# the program requires lyrics from a song and that song has already been added to this saver, no need to connect to
+# Genius API.
+music_saver = Saver(path=".cache-music-history.json")
+
 # GETTING CREDENTIAL #
 
 # Spotify API
@@ -199,78 +201,6 @@ spotify_session, spotify_access_token, spotify_refresh_token, spotify_token_type
 	saver=spotify_saver, sess=spotify, code=spotify_code, name="Spotify"
 )
 
-# Genius API
-
-with open(os.path.join(args.repository, "genius-client-id.txt"), 'r') as f:  # ../../../res/misc/genius-client-id.txt
-	GENIUS_CLIENT_ID = f.read().replace('\n', '')
-
-with open(os.path.join(args.repository, "genius-client-secret.txt"), 'r') as f:
-	GENIUS_CLIENT_SECRET = f.read().replace('\n', '')
-
-genius_saver = Saver(".cache-rauth-genius.json")
-
-genius = OAuth2Service(
-	client_id=GENIUS_CLIENT_ID,
-	client_secret=GENIUS_CLIENT_SECRET,
-	name="genius",
-	authorize_url="https://api.genius.com/oauth/authorize",
-	access_token_url="https://api.genius.com/oauth/token",
-	base_url="https://api.genius.com/",
-)
-
-
-def get_genius_code():
-	genius_params = {
-		"response_type": "code",
-		"redirect_uri": redirect_uri
-	}
-	global genius_code
-	global genius_saver
-	global server
-	
-	e = Event()
-	
-	def launch_after(e: Event):
-		e.wait()
-		webbrowser.open_new_tab(genius.get_authorize_url(**genius_params))
-	
-	Thread(target=launch_after, args=(e,)).start()
-	
-	data = None
-	while data is None or data == "":
-		e.set()
-		data = server.wait_for_connection()
-	genius_code = search_code_from_data(data)
-	server.stop()
-	server.on_data_received = lambda _: server.stop()
-	
-	genius_saver["code"] = genius_code
-	genius_saver["code_timestamp"] = int(time.time())
-
-
-# Search if there is a save:
-if genius_saver.get("code", None) is not None and genius_saver.get("code_timestamp", None) is not None and \
-		int(time.time()) - int(genius_saver["code_timestamp"]) <= 3600:
-	genius_code = str(genius_saver["code"])
-else:
-	# Connect to the Genius API to get the authentication code
-	get_genius_code()
-
-if args.debug:
-	print("Genius code = {}".format(genius_code))
-
-try:
-	genius_session, genius_access_token, genius_refresh_token, genius_token_type, genius_expires_in = get_session_using_saver(
-		saver=genius_saver, sess=genius, code=genius_code, default_expiration_time_second=1800, name="Genius"
-	)
-except KeyError:
-	get_genius_code()
-	if args.debug:
-		print("Genius code were wrong. New Genius code = {}".format(genius_code))
-	genius_session, genius_access_token, genius_refresh_token, genius_token_type, genius_expires_in = get_session_using_saver(
-		saver=genius_saver, sess=genius, code=genius_code, default_expiration_time_second=1800, name="Genius"
-	)
-
 # GETTING CONTENT #
 
 # Spotify API: Fetch the current music
@@ -290,44 +220,123 @@ for a in spotify_results["item"]["artists"]:
 		artists = artists + ", " + a["name"]
 
 music_name = spotify_results["item"]["name"]
+
 if args.print_info:
 	print("You're listening to {} by {}.".format(music_name, artists))
 
-# Genius API
-
-search_query = {
-	'q': "{} {}".format(music_name, artists.split(',')[0])
-}
-if args.debug:
-	print("Searching \"{}\" in Genius library".format(search_query['q']))
-search_query = urllib.parse.urlencode(search_query).replace('+', '%20')
-results = genius_session.get("search?{}".format(search_query)).json()
-
-result_hits = results["response"]["hits"]
-
-first_result = None
-for h in result_hits:
-	if h["type"] == "song":
-		first_result = h
-		break
-
-content = "No lyrics found."
-if first_result is not None:
-	first_result_path = first_result["result"]["api_path"]
+# Before calling the Genius API, check if the music is not already in the history log:
+potential_lyrics = music_saver.get("{}|{}".format(music_name, artists), None)
+if potential_lyrics is None or potential_lyrics == "":
+	# Genius API
 	
-	results = genius_session.get(first_result_path).json()
-	path = results["response"]["song"]["path"]
-	url = "https://genius.com" + path
-	req = urllib.request.Request(url=url, headers={'User-Agent': 'Mozilla/5.0'})
-	with urllib.request.urlopen(req) as f:
-		content = f.read().decode("utf-8")
-	content = content.split('<div class="lyrics">')[1]
-	content = content.split('<!--sse-->')[1]
-	content = content.split('<!--/sse-->')[0]
-	content = re.sub(r"<\/?[^>]+>", "", content)
-	content = re.sub(r"(\n|\r\n|\n\r|\s)*\0?$", "", content)
-	content = re.sub(r"^(\n|\r\n|\n\r|\s)*", "", content)
-	content = html.unescape(content)
+	with open(os.path.join(args.repository, "genius-client-id.txt"), 'r') as f:  # ../../../res/misc/genius-client-id.txt
+		GENIUS_CLIENT_ID = f.read().replace('\n', '')
+	
+	with open(os.path.join(args.repository, "genius-client-secret.txt"), 'r') as f:
+		GENIUS_CLIENT_SECRET = f.read().replace('\n', '')
+	
+	genius_saver = Saver(".cache-rauth-genius.json")
+	
+	genius = OAuth2Service(
+		client_id=GENIUS_CLIENT_ID,
+		client_secret=GENIUS_CLIENT_SECRET,
+		name="genius",
+		authorize_url="https://api.genius.com/oauth/authorize",
+		access_token_url="https://api.genius.com/oauth/token",
+		base_url="https://api.genius.com/",
+	)
+	
+	
+	def get_genius_code():
+		genius_params = {
+			"response_type": "code",
+			"redirect_uri": redirect_uri
+		}
+		global genius_code
+		global genius_saver
+		global server
+		
+		e = Event()
+		
+		def launch_after(e: Event):
+			e.wait()
+			webbrowser.open_new_tab(genius.get_authorize_url(**genius_params))
+		
+		Thread(target=launch_after, args=(e,)).start()
+		
+		data = None
+		while data is None or data == "":
+			e.set()
+			data = server.wait_for_connection()
+		genius_code = search_code_from_data(data)
+		server.stop()
+		server.on_data_received = lambda _: server.stop()
+		
+		genius_saver["code"] = genius_code
+		genius_saver["code_timestamp"] = int(time.time())
+	
+	
+	# Search if there is a save:
+	if genius_saver.get("code", None) is not None and genius_saver.get("code_timestamp", None) is not None and \
+			int(time.time()) - int(genius_saver["code_timestamp"]) <= 3600:
+		genius_code = str(genius_saver["code"])
+	else:
+		# Connect to the Genius API to get the authentication code
+		get_genius_code()
+	
+	if args.debug:
+		print("Genius code = {}".format(genius_code))
+	
+	try:
+		genius_session, genius_access_token, genius_refresh_token, genius_token_type, genius_expires_in = get_session_using_saver(
+			saver=genius_saver, sess=genius, code=genius_code, default_expiration_time_second=1800, name="Genius"
+		)
+	except KeyError:
+		get_genius_code()
+		if args.debug:
+			print("Genius code were wrong. New Genius code = {}".format(genius_code))
+		genius_session, genius_access_token, genius_refresh_token, genius_token_type, genius_expires_in = get_session_using_saver(
+			saver=genius_saver, sess=genius, code=genius_code, default_expiration_time_second=1800, name="Genius"
+		)
+	
+	search_query = {
+		'q': "{} {}".format(music_name, artists.split(',')[0])
+	}
+	if args.debug:
+		print("Searching \"{}\" in Genius library".format(search_query['q']))
+	search_query = urllib.parse.urlencode(search_query).replace('+', '%20')
+	results = genius_session.get("search?{}".format(search_query)).json()
+	
+	result_hits = results["response"]["hits"]
+	
+	first_result = None
+	for h in result_hits:
+		if h["type"] == "song":
+			first_result = h
+			break
+	
+	content = "No lyrics found."
+	if first_result is not None:
+		first_result_path = first_result["result"]["api_path"]
+		
+		results = genius_session.get(first_result_path).json()
+		path = results["response"]["song"]["path"]
+		url = "https://genius.com" + path
+		req = urllib.request.Request(url=url, headers={'User-Agent': 'Mozilla/5.0'})
+		with urllib.request.urlopen(req) as f:
+			content = f.read().decode("utf-8")
+		content = content.split('<div class="lyrics">')[1]
+		content = content.split('<!--sse-->')[1]
+		content = content.split('<!--/sse-->')[0]
+		content = re.sub(r"<\/?[^>]+>", "", content)
+		content = re.sub(r"(\n|\r\n|\n\r|\s)*\0?$", "", content)
+		content = re.sub(r"^(\n|\r\n|\n\r|\s)*", "", content)
+		content = html.unescape(content)
+	
+	# Save the lyrics
+	music_saver["{}|{}".format(music_name, artists)] = content
+else:
+	content = potential_lyrics
 
 if args.print_info:
 	print("\n{}\n".format(content))

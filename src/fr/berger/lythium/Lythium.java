@@ -65,15 +65,12 @@ public class Lythium extends Application {
 					try {
 						Platform.runLater(() -> pb_pythium.setProgress(ProgressIndicator.INDETERMINATE_PROGRESS));
 						
-						// TODO: Before running Pythium, search in the database if it has not been searched before
-						
 						Couple<PythiumBundle, SpotifyBundle> results = Pythium.call();
 						
 						Platform.runLater(() -> {
 							if (results != null && results.getX() != null) {
 								pb_pythium.setProgress(0);
 								ta_lyrics.setText(results.getX().getLyrics());
-								P.setMusic(results.getX().getMusic(), results.getX().getLyrics());
 								
 								if (showcase != null)
 									showcase.update(results);
@@ -187,3 +184,10 @@ public class Lythium extends Application {
 		launch(args);
 	}
 }
+
+/**
+ * TODO:
+ * Save thumbnails in Lythium-side in .lythium/cache
+ * In Pythium, save the lyrics AND the number of time that the music has been fetch from the dictionary, so when the file becomes too big, the script can delete the useless ones.
+ * In Lythium, make an option to delete the cache files (all .cache-*)
+ */

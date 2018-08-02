@@ -16,7 +16,6 @@ public abstract class P {
 	
 	private static boolean initialized = false;
 	private static Properties appProperties = null;
-	private static Properties musicProperties = null;
 	
 	/* CONSTRUCTOR */
 	
@@ -26,13 +25,6 @@ public abstract class P {
 			appProperties.loadFromXML(new FileInputStream(R.getApplicationPreferencesFile()));
 		} catch (IOException ex) {
 			saveAppPref();
-		}
-		
-		musicProperties = new Properties();
-		try {
-			musicProperties.loadFromXML(new FileInputStream(R.getMusicPreferencesFile()));
-		} catch (IOException ex) {
-			saveMusicPref();
 		}
 		
 		initialized = true;
@@ -51,12 +43,6 @@ public abstract class P {
 		saveAppPref();
 	}
 	
-	public static void setMusic(@NotNull String key, @Nullable Object value) {
-		checkInitialize();
-		set(musicProperties, key, value);
-		saveMusicPref();
-	}
-	
 	private static void set(@NotNull Properties properties, @NotNull String key, @Nullable Object value) {
 		properties.setProperty(key, Objects.toString(value, "null"));
 	}
@@ -70,17 +56,6 @@ public abstract class P {
 	public static String getApp(@NotNull String key) {
 		checkInitialize();
 		return get(appProperties, key);
-	}
-	
-	@Nullable
-	public static String getMusic(@NotNull String key, @Nullable String defaultValue) {
-		checkInitialize();
-		return get(musicProperties, key, defaultValue);
-	}
-	@Nullable
-	public static String getMusic(@NotNull String key) {
-		checkInitialize();
-		return get(musicProperties, key);
 	}
 	
 	@Nullable
@@ -106,19 +81,8 @@ public abstract class P {
 		}
 	}
 	
-	public static void saveMusicPref() {
-		if (musicProperties != null) {
-			try {
-				save(musicProperties, R.getMusicPreferencesFile());
-			} catch (IOException ex) {
-				ex.printStackTrace();
-			}
-		}
-	}
-	
 	public static void save() {
 		saveAppPref();
-		saveMusicPref();
 	}
 	
 	private static void save(@NotNull Properties properties, @NotNull File f) {
@@ -135,11 +99,5 @@ public abstract class P {
 	public static Properties getApplicationProperties() {
 		checkInitialize();
 		return appProperties;
-	}
-	
-	@NotNull
-	public static Properties getMusicProperties() {
-		checkInitialize();
-		return musicProperties;
 	}
 }

@@ -15,6 +15,8 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
 
+// TODO: Save the thumbnails in .lythium/cache/
+
 public class Showcase extends Pane {
 	
 	/* VARIABLES */
