@@ -1,0 +1,29 @@
+.jfx-decorator {
+	-fx-decorator-color: #2ecba3ff;
+}
+
+.jfx-decorator .jfx-decorator-buttons-container {
+	-fx-background-color: -fx-decorator-color;
+}
+
+.jfx-decorator .resize-border {
+	-fx-border-color: -fx-decorator-color;
+	-fx-border-width: 0px 5px 5px 5px;
+}
+
+.jfx-progress-bar, #pb_pythium {
+	-fx-progress-color: #2ecba3ff;
+	-fx-stroke-width: 3;
+}
+
+#pa_lyrics, #sp_status {
+	-fx-background-color: white;
+}
+
+#pa_lyrics {
+	-fx-background-radius: 3px 3px 3px 3px;
+}
+
+#sp_status {
+	-fx-background-radius: 10px 10px 10px 10px;
+}

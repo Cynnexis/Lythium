@@ -1,0 +1,13 @@
+
+#tx_musicName, #tx_artists {
+	-fx-font-family: Roboto, Calibri, Arial, "Times New Roman", Serif;
+}
+
+#tx_musicName {
+	-fx-font-size: 30px;
+	-fx-font-weight: bold;
+}
+
+#tx_artists {
+	-fx-font-size: 20px;
+}

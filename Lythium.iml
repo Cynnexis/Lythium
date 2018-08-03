@@ -20,5 +20,6 @@
     <orderEntry type="library" exported="" name="EnhancedList" level="project" />
     <orderEntry type="library" name="Jackson 2.9.6" level="project" />
     <orderEntry type="library" name="JMetro 8" level="project" />
+    <orderEntry type="library" name="jfoenix-8.0.5" level="project" />
   </component>
 </module>

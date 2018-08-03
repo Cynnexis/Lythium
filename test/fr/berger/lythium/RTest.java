@@ -11,6 +11,43 @@ import static org.junit.jupiter.api.Assertions.*;
 class RTest {
 	
 	@Test
+	void getLythiumIcon() {
+		assertNotNull(R.getLythiumIcon(16, R.ImageType.COLOR));
+		assertNotNull(R.getLythiumIcon(32, R.ImageType.COLOR));
+		assertNotNull(R.getLythiumIcon(64, R.ImageType.COLOR));
+		assertNotNull(R.getLythiumIcon(128, R.ImageType.COLOR));
+		assertNotNull(R.getLythiumIcon(256, R.ImageType.COLOR));
+		assertNotNull(R.getLythiumIcon(512, R.ImageType.COLOR));
+		assertNotNull(R.getLythiumIcon(1024, R.ImageType.COLOR));
+		assertNull(R.getLythiumIcon(2048, R.ImageType.COLOR));
+		assertNull(R.getLythiumIcon(442, R.ImageType.COLOR));
+		assertNull(R.getLythiumIcon(0, R.ImageType.COLOR));
+		assertNull(R.getLythiumIcon(-1, R.ImageType.COLOR));
+		assertNull(R.getLythiumIcon(6412, R.ImageType.COLOR));
+		
+		assertNotNull(R.getLythiumIcon(16, R.ImageType.BLACK));
+		assertNotNull(R.getLythiumIcon(32, R.ImageType.BLACK));
+		assertNull(R.getLythiumIcon(64, R.ImageType.BLACK));
+		assertNull(R.getLythiumIcon(0, R.ImageType.BLACK));
+		assertNull(R.getLythiumIcon(-1, R.ImageType.BLACK));
+		
+		assertNotNull(R.getLythiumIcon(16, R.ImageType.WHITE));
+		assertNotNull(R.getLythiumIcon(32, R.ImageType.WHITE));
+		assertNull(R.getLythiumIcon(64, R.ImageType.WHITE));
+		assertNull(R.getLythiumIcon(0, R.ImageType.WHITE));
+		assertNull(R.getLythiumIcon(-1, R.ImageType.WHITE));
+	}
+	
+	@Test
+	void getRefreshIcon() {
+		assertNotNull(R.getRefreshIcon(16));
+		assertNotNull(R.getRefreshIcon(32));
+		assertNull(R.getRefreshIcon(64));
+		assertNull(R.getRefreshIcon(0));
+		assertNull(R.getRefreshIcon(-1));
+	}
+	
+	@Test
 	void getSpotifyClientId() {
 		String content = R.getSpotifyClientId();
 		System.out.println("RTest.getSpotifyClientId> " + content);
@@ -85,5 +122,18 @@ class RTest {
 		System.out.println("RTest.getCacheFolder> Application cache folder path = " + f.getAbsolutePath());
 		assertNotNull(f);
 		assertTrue(f.exists());
+	}
+	
+	@Test
+	void getPrimaryColor() throws Exception {
+		assertEquals(((float)  46)/((float) 255), R.getPrimaryColor().getRed());
+		assertEquals(((float) 203)/((float) 255), R.getPrimaryColor().getGreen());
+		assertEquals(((float) 163)/((float) 255), R.getPrimaryColor().getBlue());
+		assertEquals("#2ecba3ff", R.getPrimaryColor().toString().replaceFirst("0x", "#"));
+	}
+	
+	@Test
+	void getPrimaryColorAsHexa() throws Exception {
+		assertEquals("#2ecba3ff", R.getPrimaryColorAsHexa());
 	}
 }

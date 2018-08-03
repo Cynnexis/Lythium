@@ -4,6 +4,7 @@ import fr.berger.enhancedlist.Couple;
 import fr.berger.lythium.bundles.pythiumbundle.PythiumBundle;
 import fr.berger.lythium.bundles.spotifyobjects.Artist;
 import fr.berger.lythium.bundles.spotifyobjects.SpotifyBundle;
+import javafx.geometry.Insets;
 import javafx.scene.Parent;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -77,14 +78,27 @@ public class Showcase extends Pane {
 	
 	private void initFX() {
 		tx_musicName = new Text();
+		tx_musicName.setId("tx_musicName");
 		tx_artists = new Text();
+		tx_artists.setId("tx_artists");
 		iv_cover = new ImageView();
-		iv_cover.setFitWidth(150);
-		iv_cover.setFitHeight(150);
+		iv_cover.setId("iv_cover");
+		iv_cover.setPreserveRatio(true);
+		iv_cover.minWidth(20);
+		iv_cover.minHeight(20);
+		iv_cover.maxWidth(100);
+		iv_cover.maxHeight(100);
+		iv_cover.prefWidth(70);
+		iv_cover.prefHeight(70);
+		iv_cover.fitHeightProperty().bind(this.heightProperty());
 		
 		vb_texts = new VBox(tx_musicName, tx_artists);
+		vb_texts.setId("vb_texts");
+		vb_texts.setPadding(new Insets(0, 0, 30, 10));
 		hb_root = new HBox(iv_cover, vb_texts);
+		hb_root.setId("hb_root");
 		
+		this.getStylesheets().add(getClass().getResource("/styles/showcase-default-style.css").toExternalForm());
 		this.getChildren().add(hb_root);
 	}
 	
@@ -119,7 +133,6 @@ public class Showcase extends Pane {
 		if (spotifyBundle.getItem().getAlbum().getImages() != null && spotifyBundle.getItem().getAlbum().getImages().size() > 0) {
 			if (spotifyBundle.getItem().getAlbum().getImages().first() != null && spotifyBundle.getItem().getAlbum().getImages().first().getUrl() != null) {
 				String url = spotifyBundle.getItem().getAlbum().getImages().first().getUrl().toString();
-				System.out.println("DEBUG> URL: " + url);
 				setCover(new Image(url, false));
 			}
 		}

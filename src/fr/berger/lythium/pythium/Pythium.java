@@ -39,7 +39,7 @@ public class Pythium {
 			String content = "";
 			try {
 				Process process = new ProcessBuilder("python3", "pythium-core.py", "-r", "../../../res/misc/",
-						"-s", "../../../spotify-bundle.json", "-o", "../../../lyrics.json", "-i")
+						"-s", "../../../spotify-bundle.json", "-o", "../../../lyrics.json")
 						.inheritIO()
 						.directory(new File("Pythium/src/pythium"))
 						.start();

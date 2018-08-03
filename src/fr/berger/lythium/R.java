@@ -1,14 +1,58 @@
 package fr.berger.lythium;
 
+import javafx.scene.image.Image;
+import javafx.scene.paint.Color;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.awt.image.ImagingOpException;
 import java.io.*;
+import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Objects;
 
 public abstract class R {
+	
+	public enum ImageType {
+		COLOR,
+		BLACK,
+		WHITE
+	}
+	
+	@Nullable
+	public static Image getLythiumIcon(int size, @NotNull ImageType type) {
+		String path = "/images/lythium";
+		
+		switch (type) {
+			case BLACK:
+				path += "-black";
+				break;
+			case WHITE:
+				path += "-white";
+				break;
+		}
+		
+		path += Integer.toString(size) + ".png";
+		
+		InputStream input = R.class.getResourceAsStream(path);
+		
+		if (input == null)
+			return null;
+		else
+			return new Image(input);
+	}
+	
+	@Nullable
+	public static Image getRefreshIcon(int size) {
+		String path = "/images/refresh" + Integer.toString(size) + ".png";
+		InputStream input = R.class.getResourceAsStream(path);
+		
+		if (input == null)
+			return null;
+		else
+			return new Image(input);
+	}
 	
 	@NotNull
 	public static String getApplicationFolderPath() throws IOException {
@@ -123,6 +167,27 @@ public abstract class R {
 	@NotNull
 	public static String getSpotifyClientSecret() {
 		return readResourceTextFile("/misc/spotify-client-secret.txt").replaceAll("\n", "");
+	}
+	
+	@NotNull
+	public static Color getPrimaryColor() {
+		return Color.color(46./255., 203./255., 163./255.);
+	}
+	
+	@NotNull
+	public static String getPrimaryColorAsHexa() {
+		return R.getPrimaryColor().toString().replaceFirst("0x", "#");
+	}
+	
+	@NotNull
+	public static String getLythiumDefaultStylesheet() {
+		String path = "/styles/lythium-default-style.css";
+		String result = R.class.getResource(path).toExternalForm();
+		
+		if (result == null)
+			throw new NullPointerException("Cannot access resource CSS file \"" + path + "\" within the jar.");
+		
+		return result;
 	}
 	
 	@NotNull
