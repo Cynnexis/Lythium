@@ -1,0 +1,13 @@
+<component name="libraryTable">
+  <library name="JFoenis">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/lib/jfoenix-8.0.5/jfoenix-8.0.5.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="file://$USER_HOME$/Sources/JFoenix-master/demo/src/main/java" />
+      <root url="file://$USER_HOME$/Sources/JFoenix-master/jfoenix/build/dalvik-sdk/samples/HelloWorld/javafx/src/main/java" />
+      <root url="file://$USER_HOME$/Sources/JFoenix-master/jfoenix/src/main/java" />
+    </SOURCES>
+  </library>
+</component>

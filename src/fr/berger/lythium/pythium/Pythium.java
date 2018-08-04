@@ -1,9 +1,7 @@
 package fr.berger.lythium.pythium;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.sun.org.apache.xpath.internal.operations.Bool;
 import fr.berger.enhancedlist.Couple;
-import fr.berger.enhancedlist.lexicon.Lexicon;
 import fr.berger.lythium.bundles.pythiumbundle.PythiumBundle;
 import fr.berger.lythium.bundles.spotifyobjects.Artist;
 import fr.berger.lythium.bundles.spotifyobjects.MixIn;
@@ -67,6 +65,9 @@ public class Pythium {
 			try {
 				ObjectMapper objectMapper = new ObjectMapper();
 				pythiumBundle = objectMapper.readValue(f_lyrics, PythiumBundle.class);
+				pythiumBundle.setMusic(pythiumBundle.getMusic().replaceAll("\0", "").replaceAll("\n", ""));
+				pythiumBundle.setArtists(pythiumBundle.getArtists().replaceAll("\0", "").replaceAll("\n", ""));
+				pythiumBundle.setLyrics(pythiumBundle.getLyrics().replaceAll("\0", ""));
 			} catch (Exception e) {
 				e.printStackTrace();
 			}

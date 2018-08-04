@@ -15,11 +15,12 @@
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" exported="" name="JetBrains Annotations" level="project" />
-    <orderEntry type="library" name="JUnit" level="project" />
     <orderEntry type="library" exported="" name="BeyondCode" level="project" />
     <orderEntry type="library" exported="" name="EnhancedList" level="project" />
     <orderEntry type="library" name="Jackson 2.9.6" level="project" />
     <orderEntry type="library" name="JMetro 8" level="project" />
     <orderEntry type="library" name="jfoenix-8.0.5" level="project" />
+    <orderEntry type="library" name="JUnit" level="project" />
+    <orderEntry type="library" name="Jython" level="project" />
   </component>
 </module>

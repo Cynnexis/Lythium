@@ -7,9 +7,11 @@ import fr.berger.lythium.bundles.pythiumbundle.PythiumBundle;
 import fr.berger.lythium.bundles.spotifyobjects.SpotifyBundle;
 import fr.berger.lythium.pythium.Pythium;
 import fr.berger.lythium.ui.Showcase;
+import fr.berger.lythium.ui.Space;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.Label;
@@ -152,16 +154,16 @@ public class Lythium extends Application {
 		hb_menu = new JFXHamburger();
 		hb_menu.setPadding(new Insets(10));
 		rp_menu = new JFXRippler(hb_menu);
-		rp_menu.setOnMouseClicked(event -> pp_menu.show(rp_menu, JFXPopup.PopupVPosition.BOTTOM, JFXPopup.PopupHPosition.LEFT));
-		rp_menu = new JFXRippler(rp_menu);
+		rp_menu.setOnMouseClicked(event -> pp_menu.show(rp_menu, JFXPopup.PopupVPosition.TOP, JFXPopup.PopupHPosition.RIGHT));
 		
 		tb_toolbar = new JFXToolbar();
 		tb_toolbar.setLeft(bt_refresh);
 		tb_toolbar.setRight(rp_menu);
+		JFXDepthManager.setDepth(tb_toolbar, 0);
 		
 		showcase = new Showcase();
 		
-		la_lyrics = new Label("You want your lyrics? Press the \"Refresh\" button to get them!");
+		la_lyrics = new Label("Wanna see your lyrics? Press the \"Refresh\" button to get them!");
 		la_lyrics.setWrapText(true);
 		
 		pa_lyrics = new StackPane(la_lyrics);
@@ -186,7 +188,8 @@ public class Lythium extends Application {
 		sp_status.setPadding(new Insets(5));
 		JFXDepthManager.setDepth(sp_status, 1);
 		
-		hb_statusBar = new HBox(pb_pythium, sp_status);
+		hb_statusBar = new HBox(new Space(20, 0), pb_pythium, new Space(20, 0), sp_status);
+		hb_statusBar.setAlignment(Pos.CENTER_LEFT);
 		hb_statusBar.setPadding(new Insets(10, 10, 10, 0));
 		
 		bp_main = new BorderPane(vb_center);
